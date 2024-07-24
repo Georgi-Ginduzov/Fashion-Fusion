@@ -1,0 +1,9 @@
+header {
+    height: 90%;
+    
+}
+
+.cacs{
+    background-color: aqua;
+    background-image: url(../../assets/MainPageHeader.png);
+}
