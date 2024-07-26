@@ -1,51 +1,53 @@
 import { useState, useEffect, useRef } from 'react';
-import Slide from "./slide/Slide";
-
+import PropTypes from 'prop-types';
+import DropboxImage from '../../dropboxImage/DropboxImage';
 import "./Slideshow.css";
 
-// Delay between slides in milliseconds
 const delay = 2500;
 
-export default function Slideshow({ images }) {
-    const [index, setIndex] = useState(0); // Current slide index
-    const timeoutRef = useRef(null); // Reference to the timeout function
+export default function Slideshow({ imagePaths }) {
+    const accessToken = import.meta.env.VITE_DROPBOX_ACCESS_TOKEN;
+    const [index, setIndex] = useState(0); 
+    const timeoutRef = useRef(null); 
 
-    // Function to reset the timeout
     function resetTimeout() {
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
         }
     }
 
-    // Set up the interval for slide transition
     useEffect(() => {
         resetTimeout();
-
-        // Set a timeout to change the slide
         timeoutRef.current = setTimeout(
-            () => setIndex((prevIndex) => (prevIndex + 1) % images.length), // Loop to the first slide after the last
+            () => setIndex((prevIndex) => (prevIndex + 1) % imagePaths.length),
             delay
         );
-
-        // Clean up the timeout on component unmount or when index changes
         return () => {
             resetTimeout();
         };
-    }, [index, images.length]);
+    }, [index, imagePaths.length]);
+
+    // Preload images
+    useEffect(() => {
+        imagePaths.forEach(path => {
+            const img = new Image();
+            img.src = path;
+        });
+    }, [imagePaths]);
 
     return (
         <div className="slideshow">
             <div
                 className="slideshowSlider"
-                style={{ transform: `translate3d(${-index * 100}%, 0, 0)` }} // Slide transition effect
+                style={{ transform: `translate3d(${-index * 100}%, 0, 0)` }}
             >
-                {images.map((imageURL, index) => (
-                    <Slide key={index} imageURL={imageURL} />
+                {imagePaths.map((path, idx) => (
+                    <DropboxImage key={idx} accessToken={accessToken} path={path} />
                 ))}
             </div>
 
             <div className="slideshowDots">
-                {images.map((_, idx) => (
+                {imagePaths.map((_, idx) => (
                     <div
                         key={idx}
                         className={`slideshowDot${index === idx ? " active" : ""}`}
@@ -58,3 +60,7 @@ export default function Slideshow({ images }) {
         </div>
     );
 }
+
+Slideshow.propTypes = {
+    imagePaths: PropTypes.arrayOf(PropTypes.string).isRequired,
+};

@@ -1,10 +1,9 @@
-import React from 'react';
 import styles from "./Slide.module.css";
 
-function Slide({ imageURL }) {
+function Slide({ children }) {
   return (
-    <div className={styles.slide} style={{ backgroundImage: `url(${imageURL})` }}>
-      {} 
+    <div className={styles.slide}>
+      {children}
     </div>
   );
 }
